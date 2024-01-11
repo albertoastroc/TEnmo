@@ -15,7 +15,7 @@ public class JdbcAccountDao implements AccountDao{
     }
 
     public double getBalance(int userId) {
-        String sql = "SELECT username, balance FROM account JOIN tenmo_user ON account.user_id = tenmo_user.user_id WHERE user_id = ?;";
+        String sql = "SELECT username, balance FROM account JOIN tenmo_user ON account.user_id = tenmo_user.user_id WHERE account.user_id = ?;";
         SqlRowSet result = jdbcTemplate.queryForRowSet(sql, userId);
         if (result.next()) {
             return result.getDouble("balance");

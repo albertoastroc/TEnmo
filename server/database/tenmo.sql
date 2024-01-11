@@ -33,5 +33,12 @@ CREATE TABLE account (
 	CONSTRAINT FK_account_tenmo_user FOREIGN KEY (user_id) REFERENCES tenmo_user (user_id)
 );
 
+INSERT into tenmo_user(username, password_hash)
+VALUES('Berto', 'Bertohash');
+
+INSERT into account(user_id, balance)
+VALUES(1001, 1000);
 
 COMMIT;
+
+select * from tenmo_user

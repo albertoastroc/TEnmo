@@ -1,6 +1,7 @@
 package com.techelevator.tenmo.dao;
 
 import com.techelevator.tenmo.model.User;
+import com.techelevator.tenmo.model.UserDto;
 import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.rowset.SqlRowSet;
@@ -58,18 +59,42 @@ public class JdbcUserDao implements UserDao {
     public boolean create(String username, String password) {
 
         // create user
-        String sql = "INSERT INTO tenmo_user (username, password_hash) VALUES (?, ?) RETURNING user_id";
+        String insertUserSql = "INSERT INTO tenmo_user (username, password_hash) VALUES (?, ?) RETURNING user_id";
+        String insertAccountSql = "INSERT into account(user_id, balance) VALUES(?,?);";
+
         String password_hash = new BCryptPasswordEncoder().encode(password);
-        Integer newUserId;
+
+        Integer user_id;
+
         try {
-            newUserId = jdbcTemplate.queryForObject(sql, Integer.class, username, password_hash);
+            user_id = jdbcTemplate.queryForObject(insertUserSql, Integer.class, username, password_hash);
+
         } catch (DataAccessException e) {
+            return false;
+        }
+
+        try {
+            jdbcTemplate.update(insertAccountSql,user_id, 1000);
+        } catch (DataAccessException e){
             return false;
         }
 
         // TODO: Create the account record with initial balance
 
         return true;
+    }
+
+    @Override
+    public List<UserDto> getAllUsernames() {
+        List<UserDto> listOfUsers = new ArrayList<>();
+        String sql = "SELECT username FROM tenmo_user;";
+        SqlRowSet result = jdbcTemplate.queryForRowSet(sql);
+        while (result.next()) {
+            UserDto user = new UserDto();
+            user.setUserName(result.getString("username"));
+            listOfUsers.add(user);
+        }
+        return listOfUsers;
     }
 
     private User mapRowToUser(SqlRowSet rs) {

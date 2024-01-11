@@ -2,6 +2,7 @@ package com.techelevator.tenmo.controller;
 import com.techelevator.tenmo.dao.AccountDao;
 import com.techelevator.tenmo.dao.UserDao;
 import com.techelevator.tenmo.model.User;
+import com.techelevator.tenmo.model.UserDto;
 import com.techelevator.tenmo.model.UsernameBalanceDto;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -29,8 +30,9 @@ public class AccountController {
     }
 
     @RequestMapping(path = "/accounts", method = RequestMethod.GET)
-    public List<User> getAllUsers(){
-        return userDao.findAll();
+    public List<UserDto> getAllUsers(){
+       return userDao.getAllUsernames();
 
     }
+
 }

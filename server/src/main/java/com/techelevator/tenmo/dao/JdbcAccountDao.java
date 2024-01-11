@@ -1,9 +1,12 @@
 package com.techelevator.tenmo.dao;
 
 import com.techelevator.tenmo.model.User;
+import com.techelevator.tenmo.model.UserDto;
 import com.techelevator.tenmo.model.UsernameBalanceDto;
+import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.rowset.SqlRowSet;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
@@ -31,19 +34,5 @@ public class JdbcAccountDao implements AccountDao{
         }
         return usernameBalanceDto;
     }
-
-    public List<User> getAllUsers() {
-
-        List<User> listOfUsers = new ArrayList<>();
-        String sql = "SELECT username FROM user;";
-        SqlRowSet result = jdbcTemplate.queryForRowSet(sql);
-        while (result.next()) {
-            User user = new User();
-            user.setUsername(result.getString("username"));
-            listOfUsers.add(user);
-        }
-        return listOfUsers;
-    }
-
 
 }

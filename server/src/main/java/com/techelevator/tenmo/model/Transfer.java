@@ -1,13 +1,20 @@
 package com.techelevator.tenmo.model;
 
+import javax.validation.constraints.DecimalMin;
+import javax.validation.constraints.NotBlank;
+
 public class Transfer {
 
     public int transferId;
 
+    @NotBlank
+    @DecimalMin(value = ".01", message = "The field transfer amount should be greater than 0")
     public double transferAmount;
 
+    @NotBlank(message = "The transferFrom field should not be blank")
     public String transferFrom;
 
+    @NotBlank(message = "The transferTo field should not be blank")
     public String transferTo;
 
     public Transfer(double transferAmount, String transferFrom, String transferTo) {

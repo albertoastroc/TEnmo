@@ -2,6 +2,7 @@ package com.techelevator.tenmo.model;
 
 public class Account {
 
+
     public int accountId;
 
     public int userId;

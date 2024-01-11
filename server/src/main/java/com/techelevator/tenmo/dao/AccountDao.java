@@ -1,5 +1,7 @@
 package com.techelevator.tenmo.dao;
 
+import com.techelevator.tenmo.model.UsernameBalanceDto;
+
 public interface AccountDao {
-    double getBalance(int id);
+    UsernameBalanceDto checkBalance(int id);
 }

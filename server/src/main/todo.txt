@@ -1,0 +1,36 @@
+
+
+
+When a new user registers a new account is created for them
+    Initial balance of $1000 - DONE
+    Account IDs start at 2001 - DONE
+
+(need endpoint to see username and balance based on my userid) - DONE
+As an authenticated user of the system. I need to be able to see my account balance - DONE
+    Output should only include username and balance, request should only contain token - DONE
+
+(need new endpoint that shows all users)
+(need new endpoint to post transfer including amount recipient name in body and token)
+(need new table in sql for transfers) - DONE
+As an authenticated user of the system,
+I need to be able to send a transfer of a specific amount of TE bucks to a registered user
+    Need endpoint that shows all users
+    Don't allow sending money to myself
+    Transfer includes username of the recipient and amount
+    Receiver's account balance is increased by the amount
+    Sender's account balance is decreased by the amount
+    Can't send more than I have in my account
+    Can't send 0 or less - DONE
+    Transfer has initial status of APPROVED
+    Transfer IDs start at 3001 - DONE
+    Request body should include amount and recipient name (token in auth)
+    Successful response should have response code 201 Created
+
+(need new endpoint to show transfer i'm part of, do not show user id)
+As an authenticated user of the system, I need to be able to see transfer I have sent or received
+
+(need new endpoint to look up a specific transfer by id do not show user id)
+As an authenticated user of the system, I need to be able to look up a transfer by id
+
+// use dtos
+// if the output doesn't include decimals do we include them, what if the out put is something like 3.50

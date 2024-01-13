@@ -13,72 +13,36 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Component
-public class JdbcTransferDao implements TransferDao{
+public class JdbcTransferDao implements TransferDao {
 
-private JdbcTemplate jdbcTemplate;
+    private JdbcTemplate jdbcTemplate;
 
-public JdbcTransferDao(JdbcTemplate jdbcTemplate) {
-    this.jdbcTemplate = jdbcTemplate;
-}
+    public JdbcTransferDao(JdbcTemplate jdbcTemplate) {
+        this.jdbcTemplate = jdbcTemplate;
+    }
 
     @Override
     public Transfer postTransfer(String transferTo, double transferAmount, String transferFrom) {
         Transfer transfer = new Transfer();
 
-        String sqlGetBalance = "SELECT balance FROM account JOIN tenmo_user ON account.user_id = " +
-                "tenmo_user.user_id WHERE username = ?;";
-
         String sqlInsertTransfer = "INSERT INTO transfer (transfer_from, transfer_to, transfer_amount, status)" +
                 "VALUES (?, ?, ?, ?) RETURNING transfer_id, transfer_from, transfer_to, transfer_amount, status;";
-        String sqlUpdateFrom = "UPDATE account SET balance = ? WHERE user_id = (SELECT user_id FROM tenmo_user " +
-                " WHERE username = ?);";
-        String sqlUpdateTo = "UPDATE account SET balance = ? WHERE user_id = (SELECT user_id FROM tenmo_user " +
-                "WHERE username = ?);";
 
 
         try {
-            // Retrieve balance of sender
-            SqlRowSet getBalanceFromResult = jdbcTemplate.queryForRowSet(sqlGetBalance, transferFrom);
-            double fromBalance = 0;
-            if (getBalanceFromResult.next()) {
-                fromBalance = getBalanceFromResult.getDouble("balance");
+
+            SqlRowSet insertTransfer = jdbcTemplate.queryForRowSet(sqlInsertTransfer, transferFrom, transferTo, transferAmount, "approved");
+            if (insertTransfer.next()) {
+                transfer = mapRowToTransfer(insertTransfer);
+
             }
-            if (!transferFrom.equals(transferTo)) {
-                // Post transfer
-
-                // Check balance has enough funds for transfer, set transfer object fields for JSON return format
-
-                    if (transferAmount <= fromBalance && transferAmount > 0) {
-
-                            SqlRowSet insertTransfer = jdbcTemplate.queryForRowSet(sqlInsertTransfer, transferFrom, transferTo, transferAmount, "approved");
-                            if (insertTransfer.next()) {
-                                transfer = mapRowToTransfer(insertTransfer);
-
-                                // Update sender's balance
-                                jdbcTemplate.update(sqlUpdateFrom, fromBalance - transferAmount, transferFrom);
-                                // Update recipient's balance
-                                SqlRowSet getBalanceToResult = jdbcTemplate.queryForRowSet(sqlGetBalance, transferTo);
-                                double toBalance = 0;
-                                if (getBalanceToResult.next()) {
-                                    toBalance = getBalanceToResult.getDouble("balance");
-                                }
-                                jdbcTemplate.update(sqlUpdateTo, toBalance + transferAmount, transferTo);
-                            }
-
-
-                }
-            } else {
-                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "You can't send money to yourself");
-            }
-
         } catch (DataAccessException e) {
+            System.out.println(e.getMessage());
             System.out.println("Transfer failed.");
-        }
-        catch (RestClientResponseException e) {
+        } catch (RestClientResponseException e) {
             if (e.getRawStatusCode() >= 500) {
                 System.out.println("Server Error.");
-            }
-            else if (e.getRawStatusCode() >= 400) {
+            } else if (e.getRawStatusCode() >= 400) {
                 System.out.println("Client Error");
             }
         }
@@ -86,39 +50,41 @@ public JdbcTransferDao(JdbcTemplate jdbcTemplate) {
 
     }
 
-    //else if (transferAmount <= 0){
-    //                            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Transfer must be positive amount.");
-    //                        }
-
-    //else {
-   //     throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Insufficient funds.");
-   //}
-
     @Override
-    public Transfer getTransfer(int transferId, String transferFrom) {
-        return null;
+    public Transfer getTransferById(int transferId, String transferFrom) {
+
+        String sql = "SELECT * FROM transfer WHERE transfer_id = ? AND (transfer_from = ? OR transfer_to = ?);";
+
+        SqlRowSet sqlRowSet = jdbcTemplate.queryForRowSet(sql, transferId, transferFrom, transferFrom);
+
+        if (sqlRowSet.next()){
+
+            return mapRowToTransfer(sqlRowSet);
+
+        }
+
+        return new Transfer();
+
     }
 
     @Override
-    public List<Transfer> getTransfersForUser(String transferId, String transferFrom) {
+    public List<Transfer> getTransfersForUser(String transferFrom) {
 
         List<Transfer> transfers = new ArrayList<>();
 
-        String sqlGetAllTransfersForUser = ("SELECT * FROM transfer WHERE transfer_from" +
-                "= ?, OR transfer_to = ?;");
+        String sqlGetAllTransfersForUser = ("SELECT * FROM transfer WHERE transfer_from = ? OR transfer_to = ?;");
 
-       // SqlRowSet sqlRowSet = jdbcTemplate.queryForRowSet(sqlGetAllTransfersForUser, transferFrom, transferFrom);
+        SqlRowSet sqlRowSet = jdbcTemplate.queryForRowSet(sqlGetAllTransfersForUser, transferFrom, transferFrom);
 
-//        while (sqlRowSet.next()){
-//            Transfer transfer = new Transfer();
-//            transfer.set
-//
-//        }
+        while (sqlRowSet.next()) {
+            Transfer transfer = mapRowToTransfer(sqlRowSet);
+            transfers.add(transfer);
+        }
 
-        return null;
+        return transfers;
     }
 
-    public Transfer mapRowToTransfer(SqlRowSet sqlRowSet){
+    public Transfer mapRowToTransfer(SqlRowSet sqlRowSet) {
 
         Transfer transfer = new Transfer();
 

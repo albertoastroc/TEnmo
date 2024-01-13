@@ -22,17 +22,26 @@ public class JdbcAccountDao implements AccountDao{
     }
 
     //need to replace double with object of some kind
-    public UsernameBalanceDto checkBalance(int userId) {
+    public UsernameBalanceDto checkBalance(String username) {
 
         UsernameBalanceDto usernameBalanceDto = new UsernameBalanceDto();
-        String sql = "SELECT username, balance FROM account JOIN tenmo_user ON account.user_id = tenmo_user.user_id WHERE account.user_id = ?;";
-        SqlRowSet result = jdbcTemplate.queryForRowSet(sql, userId);
+        String sql = "SELECT username, balance FROM account JOIN tenmo_user ON account.user_id = tenmo_user.user_id WHERE tenmo_user.username = ?;";
+        SqlRowSet result = jdbcTemplate.queryForRowSet(sql, username);
         if (result.next()) {
             usernameBalanceDto.setBalance(result.getDouble("balance"));
             usernameBalanceDto.setUsername(result.getString("username"));
             return usernameBalanceDto;
         }
         return usernameBalanceDto;
+    }
+
+    @Override
+    public void updateBalance(String username, double updatedBalance){
+
+        String sqlUpdate = "UPDATE account SET balance = ? WHERE user_id = (SELECT user_id FROM tenmo_user " +
+                "WHERE username = ?);";
+
+        jdbcTemplate.update(sqlUpdate, updatedBalance, username);
     }
 
 }

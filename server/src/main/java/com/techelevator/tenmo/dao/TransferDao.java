@@ -8,7 +8,7 @@ public interface TransferDao {
 
     public Transfer postTransfer(String transferTo, double transferAmount, String transferFrom);
 
-    Transfer getTransfer(int transferId, String transferFrom);
+    Transfer getTransferById(int transferId, String transferFrom);
 
-    List<Transfer> getTransfersForUser(String transferId, String transferFrom);
+    List<Transfer> getTransfersForUser(String transferFrom);
 }

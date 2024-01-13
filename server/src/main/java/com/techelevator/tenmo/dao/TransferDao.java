@@ -5,7 +5,10 @@ import com.techelevator.tenmo.model.Transfer;
 import java.util.List;
 
 public interface TransferDao {
-    Transfer getTransfer(int transferId);
 
-    List<Transfer> getTransfersForUser(String transferId);
+    public Transfer postTransfer(String transferTo, double transferAmount, String transferFrom);
+
+    Transfer getTransfer(int transferId, String transferFrom);
+
+    List<Transfer> getTransfersForUser(String transferId, String transferFrom);
 }

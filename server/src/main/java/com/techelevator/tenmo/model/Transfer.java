@@ -11,16 +11,21 @@ public class Transfer {
     @DecimalMin(value = ".01", message = "The field transfer amount should be greater than 0")
     public double transferAmount;
 
-    @NotBlank(message = "The transferFrom field should not be blank")
     public String transferFrom;
 
     @NotBlank(message = "The transferTo field should not be blank")
     public String transferTo;
 
+    public String status = "approved";
+
+    public Transfer() {
+    }
+
     public Transfer(double transferAmount, String transferFrom, String transferTo) {
         this.transferAmount = transferAmount;
         this.transferFrom = transferFrom;
         this.transferTo = transferTo;
+        this.status = "approved";
     }
 
     public int getTransferId() {
@@ -55,6 +60,14 @@ public class Transfer {
         this.transferTo = transferTo;
     }
 
+    public String getStatus() {
+        return status;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
+    }
+
     @Override
     public String toString() {
         return "Transfer{" +
@@ -62,6 +75,7 @@ public class Transfer {
                 ", transferAmount=" + transferAmount +
                 ", transferFrom='" + transferFrom + '\'' +
                 ", transferTo='" + transferTo + '\'' +
+                ", status='" + status + '\'' +
                 '}';
     }
 }

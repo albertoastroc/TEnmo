@@ -24,9 +24,6 @@ public class AccountController {
         this.userDao = userDao;
     }
 
-
-//    @PreAuthorize("isAuthenticated()")
-    //Change return type from double to some kind of object
     @RequestMapping(path = "/accounts/{userId}", method = RequestMethod.GET)
     public UsernameBalanceDto checkBalance(@PathVariable int userId, Principal principal){
         return accountDao.checkBalance(principal.getName());
